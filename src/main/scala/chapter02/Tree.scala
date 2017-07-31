@@ -81,7 +81,6 @@ case object Empty extends Tree[Nothing]
 case class Node[+A](value: A, left: Tree[A], right: Tree[A]) extends Tree[A]
 
 import util.Math
-import java.util
 
 object Tree {
 
@@ -145,9 +144,9 @@ object Tree {
         Empty
     }
 
-    if (n <= 0) throw new IllegalArgumentException("n less than or equal to zero")
-
-    if (n == 1)
+    if (n <= 0)
+      null
+    else if (n == 1)
       Node(x, Empty, Empty)
     else {
       val l = (n - 1) / 2
