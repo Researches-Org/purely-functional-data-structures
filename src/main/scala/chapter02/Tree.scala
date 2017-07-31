@@ -13,6 +13,21 @@ sealed trait Tree[+A] {
     }
   }
 
+  def member[B >: A](x: B)(implicit ord: Ordering[B]): Boolean = {
+    import ord.mkOrderingOps
+
+    def go(t: Tree[B], e: B): Boolean = t match {
+      case Empty                    => e == x
+      case Node(y, l, _) if (x < y) => go(l, y)
+      case Node(y, _, r)            => go(r, y)
+    }
+
+    this match {
+      case Empty     => false
+      case (v, _, _) => go(this, v)
+    }
+  }
+
   def insert[B >: A](x: B)(implicit ord: Ordering[B]): Tree[B] = {
     import ord.mkOrderingOps
 
