@@ -13,7 +13,7 @@ sealed trait Tree[+A] {
     }
   }
 
-  def member[B >: A](x: B)(implicit ord: Ordering[B]): Boolean = {
+  def memberWithLessComparison[B >: A](x: B)(implicit ord: Ordering[B]): Boolean = {
     import ord.mkOrderingOps
 
     def go(t: Tree[B], e: B): Boolean = t match {
