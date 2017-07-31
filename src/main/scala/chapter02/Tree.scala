@@ -2,7 +2,8 @@ package chapter02
 
 sealed trait Tree[+A] {
 
-  def member[B >: A](x: B)(implicit ord: Ordering[B]): Boolean = {
+  @annotation.tailrec
+  final def member[B >: A](x: B)(implicit ord: Ordering[B]): Boolean = {
     import ord.mkOrderingOps
 
     this match {
@@ -13,17 +14,18 @@ sealed trait Tree[+A] {
     }
   }
 
-  def memberWithLessComparison[B >: A](x: B)(implicit ord: Ordering[B]): Boolean = {
+  def member2_2[B >: A](x: B)(implicit ord: Ordering[B]): Boolean = {
     import ord.mkOrderingOps
 
+    @annotation.tailrec
     def go(t: Tree[B], e: B): Boolean = t match {
       case Empty                    => e == x
-      case Node(y, l, _) if (x < y) => go(l, y)
+      case Node(y, l, _) if (x < y) => go(l, e)
       case Node(y, _, r)            => go(r, y)
     }
 
     this match {
-      case Empty     => false
+      case Empty         => false
       case Node(v, _, _) => go(this, v)
     }
   }
@@ -36,6 +38,39 @@ sealed trait Tree[+A] {
       case Node(y, l, r) if (x < y) => Node(y, l.insert(x), r)
       case Node(y, l, r) if (x > y) => Node(y, l, r.insert(x))
       case _                        => this
+    }
+  }
+
+  def insert2_3[B >: A](x: B)(implicit ord: Ordering[B]): Tree[B] = {
+
+    if (member2_2(x))
+      this
+    else
+      insert(x)
+  }
+
+  def insert2_4[B >: A](x: B)(implicit ord: Ordering[B]): Tree[B] = {
+    import ord.mkOrderingOps
+
+    def go(t: Tree[B], e: B): (Boolean, Tree[B]) = t match {
+      case Empty if (x == e)            => (true, Empty)
+      case Empty                        => (false, Node(x, Empty, Empty))
+      case n @ Node(y, l, _) if (x < y) => goAux(n, l, e, true)
+      case n @ Node(y, _, r)            => goAux(n, r, y, false)
+    }
+
+    def goAux(t: Node[B], c: Tree[B], e: B, left: Boolean): (Boolean, Tree[B]) = {
+      val result = go(c, e)
+      if (!result._1) {
+        val tmp = if (left) (result._2, t.right) else (t.left, result._2)
+        (false, Node(t.value, tmp._1, tmp._2))
+      } else
+        (true, t)
+    }
+
+    this match {
+      case Empty => Node(x, Empty, Empty)
+      case Node(y, _, _) => go(this, y)._2
     }
   }
 
@@ -101,6 +136,18 @@ object TreeApp {
     println(complete(1, 1))
 
     println(complete(1, 2))
+
+    println(tree4.insert2_4(10))
+
+    println(tree4.member2_2(10))
+
+    println(tree4.insert2_4(5))
+
+    println(tree.insert2_4(5).insert2_4(4))
+
+    println(tree4.insert2_4(4))
+
+    println(tree4.insert2_4(11))
   }
 
 }
