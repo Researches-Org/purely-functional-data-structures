@@ -24,7 +24,7 @@ sealed trait Tree[+A] {
 
     this match {
       case Empty     => false
-      case (v, _, _) => go(this, v)
+      case Node(v, _, _) => go(this, v)
     }
   }
 
