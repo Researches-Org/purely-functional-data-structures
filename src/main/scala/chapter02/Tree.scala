@@ -80,6 +80,8 @@ sealed trait Tree[+A] {
 case object Empty extends Tree[Nothing]
 case class Node[+A](value: A, left: Tree[A], right: Tree[A]) extends Tree[A]
 
+import util.Math
+
 object Tree {
 
   /**
@@ -102,52 +104,69 @@ object Tree {
 
     go(d)
   }
+
+  /**
+    * Extend this function to create balanced trees of arbitrary size. These trees
+    * will not always be complete binary trees, but should be as balanced as
+    * possible: for any given node, the two subtrees should differ in size by at
+    * most one. This function should run in 0(log n) time. (Hint: use a helper
+    * function create2 that, given a size m, creates a pair of trees, one of size m
+    * and one of size m+1.)
+    *
+    * N - number of nodes.
+    * H - height of the binary tree.
+    * Complete Binary Tree:
+    * Then, with H height N would lie between:
+    * 2^H <= N <= (2^(H+1) - 1)
+    * Thus, solving this inequality; we get :
+    * H <= lg(N)  and  H >= (lg(N+1) - 1)
+    * Hence we finally get:
+    * H = floor( lg(N) ) = ceil( (lg(N+1) - 1) )   //as H is integer
+    * (lg : log base 2)
+    *
+    * examples n = 2 => l = 0 and r = 1
+    *          n = 3 => l = 1 and r = 1
+    *          n = 4 => l = 1 and r = 2
+    *          n = 5 => l = 2 and r = 2
+    *          n = 6 => l = 2 and r = 3
+    *          when n is even, nodes on the left (n - 1)/2 and on the right = left + 1
+    *          when n is odd, nodes on the left (n - 1)/2 and on the right = left
+    *
+    */
+  def balanced[A](x: A, n: Int): Tree[A] = {
+
+    if (n <= 0) throw new IllegalArgumentException("n less than or equal to zero")
+
+    if (n == 1)
+      Node(x, Empty, Empty)
+    else {
+      val l = (n - 1) / 2
+      val r = if (n % 2 == 0) l + 1 else l
+
+      val left = if (l == 0) Empty else complete(x, height(l))
+      val right = complete(x, height(r))
+
+      Node(x, left, right)
+    }
+  }
+
+  def height(n: Int): Int = math.floor(Math.log2(n)).toInt
 }
 
 import Tree._
 
+
 object TreeApp {
 
   def main(args: Array[String]): Unit = {
-    val tree = Node(10, Empty, Empty)
-
-    println(tree)
-
-    val tree2 = tree.insert(10)
-
-    println(tree2)
-
-    val tree3 = tree2.insert(15)
-
-    println(tree3)
-
-    val tree4 = tree3.insert(5)
-
-    println(tree4)
-
-    println(s"10 is in ${tree}: ${tree.member(10)}")
-
-    println(s"5 is in ${tree}: ${tree.member(5)}")
-
-    println(s"5 is in ${tree4}: ${tree4.member(5)}")
-
-    println(complete(1, 0))
-
-    println(complete(1, 1))
-
-    println(complete(1, 2))
-
-    println(tree4.insert2_4(10))
-
-    println(tree4.member2_2(10))
-
-    println(tree4.insert2_4(5))
-
-    println(tree.insert2_4(5).insert2_4(4))
-
-    println(tree4.insert2_4(4))
-
-    println(tree4.insert2_4(11))
+    println(balanced(1, 1))
+    println(balanced(1, 2))
+    println(balanced(1, 3))
+    println(balanced(1, 4))
+    println(balanced(1, 5))
+    println(balanced(1, 6))
+    println(balanced(1, 7))
+    println(balanced(1, 8))
   }
 
 }
