@@ -81,6 +81,7 @@ case object Empty extends Tree[Nothing]
 case class Node[+A](value: A, left: Tree[A], right: Tree[A]) extends Tree[A]
 
 import util.Math
+import java.util
 
 object Tree {
 
@@ -135,6 +136,15 @@ object Tree {
     */
   def balanced[A](x: A, n: Int): Tree[A] = {
 
+    def create2(n: Int, p: Int): Tree[A] = {
+      if (p < n) {
+        val left = create2(n, 2 * p + 1)
+        val right = create2(n, 2 * p + 2)
+        Node(x, left, right)
+      } else
+        Empty
+    }
+
     if (n <= 0) throw new IllegalArgumentException("n less than or equal to zero")
 
     if (n == 1)
@@ -143,8 +153,8 @@ object Tree {
       val l = (n - 1) / 2
       val r = if (n % 2 == 0) l + 1 else l
 
-      val left = if (l == 0) Empty else complete(x, height(l))
-      val right = complete(x, height(r))
+      val left = create2(l, 0)
+      val right = create2(r, 0)
 
       Node(x, left, right)
     }
