@@ -45,6 +45,31 @@ sealed trait Tree[+A] {
 case object Empty extends Tree[Nothing]
 case class Node[+A](value: A, left: Tree[A], right: Tree[A]) extends Tree[A]
 
+object Tree {
+
+  /**
+    * The depth of a node is the number of edges from the node to the tree's root node.
+    * A root node will have a depth of 0.
+    * The height of a node is the number of edges on the longest path from the node to a leaf.
+    * A leaf node will have a height of 0.
+    */
+
+  def complete[A](x: A, d: Int) : Tree[A] = {
+
+    def go(depth: Int): Tree[A] = {
+      if (depth == 0) Node(x, Empty, Empty)
+      else {
+        val shared = go(depth - 1)
+        val root = Node(x, shared, shared)
+        root
+      }
+    }
+
+    go(d)
+  }
+}
+
+import Tree._
 
 object TreeApp {
 
@@ -70,6 +95,12 @@ object TreeApp {
     println(s"5 is in ${tree}: ${tree.member(5)}")
 
     println(s"5 is in ${tree4}: ${tree4.member(5)}")
+
+    println(complete(1, 0))
+
+    println(complete(1, 1))
+
+    println(complete(1, 2))
   }
 
 }
